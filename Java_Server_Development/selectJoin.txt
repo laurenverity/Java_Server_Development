@@ -1,0 +1,50 @@
+
+package selectJoin;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class selectJoin {
+    
+    public static void main(String args[]){
+    Connection con = MyConnection.getConnection(args);
+    ResultSet rs ;
+    Statement stmt;
+    
+    if(con==null){
+        System.out.println("Can't connect");
+    }
+    
+    try{
+        stmt=con.createStatement();
+
+        String str = ("select STATES.STATENAME, CITIES.STATENAME, STATES.REGION, STATES.CAPITAL, STATES.POPULATION, CITIES.CITYNAME " 
+                + "from STATES, CITIES "
+                + "where STATES.STATENAME=CITIES.STATENAME"
+                );
+        //stmt.executeUpdate(str);
+        rs = stmt.executeQuery(str);
+        while(rs.next()){
+        String city = rs.getString("CITYNAME");
+        String state=rs.getString("STATENAME");
+        String region = rs.getString("REGION");
+        String capital = rs.getString("CAPITAL");
+        String population = rs.getString("POPULATION");
+        
+        System.out.println("City Name=" + city + " State Name=" + state + " Region = "+ region +
+                " Capital = " + capital + " population = "+ population);
+        }
+        
+        stmt.close();
+        con.close();
+    }
+    catch(SQLException e){
+        System.err.println("SQL exception "+ e.getMessage());
+    }
+    
+    
+    }
+}
+

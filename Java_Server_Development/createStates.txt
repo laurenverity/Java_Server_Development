@@ -1,0 +1,58 @@
+
+package createStates;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class createStates {
+    
+    public static void main(String args[]){
+    Connection con = MyConnection.getConnection(args);
+    
+    Statement stmt;
+    ResultSet rs;
+    
+    if(con==null){
+        System.out.println("Can't connect");
+    }
+    
+    try{
+        stmt=con.createStatement();
+        String delete = "drop table if exists STATES";
+        stmt.executeUpdate(delete);
+        String createString = ("create table STATES " + "(STATENAME varchar(20), " 
+                + "REGION varchar(20), " + "LARGEST_CITY varchar(30), "+ "CAPITAL varchar(30), "
+                + "POPULATION int)");
+        String [] insert = {"insert into STATES values ('California','West','San Francisco','Sacramento','4000000')", 
+            "insert into STATES values('Oregon','West','Portland','Eugene','2000000')",
+            "insert into STATES values('New York', 'East','New York City','Albany','4000000')",
+            "insert into STATES values('Michigan','Midwest','Detroit','Lansing','2000000')",
+            "insert into STATES values('Colorado','West','Denver','Colorado Springs','3000000')"};
+        
+        stmt.executeUpdate(createString);
+        for(int i =0; i<insert.length; i++){
+            stmt.executeUpdate(insert[i]);
+        }
+        rs = stmt.executeQuery("select * from STATES");
+        while(rs.next()){
+            String state = rs.getString("STATENAME");
+            String region = rs.getString("REGION");
+            String city = rs.getString("LARGEST_CITY");
+            String capital = rs.getString("CAPITAL");
+            String pop = rs.getString("POPULATION");
+        
+        System.out.println("State Name=" + state + " Region = "+ region + " City= " + city + 
+                " Capital = " + capital + " population = "+ pop);
+        }
+        stmt.close();
+        con.close();
+    }
+    catch(SQLException e){
+        System.err.println("SQL exception "+ e.getMessage());
+    }
+    
+    
+    }
+}

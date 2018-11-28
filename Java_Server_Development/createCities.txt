@@ -1,0 +1,58 @@
+package createCities;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class createCities {
+public static void main(String args[]){
+    Connection con = MyConnection.getConnection(args);
+    ResultSet rSet = null;
+    
+    Statement stmt;
+    
+    if(con==null){
+        System.out.println("Can't connect");
+    }
+    
+    try{
+        stmt=con.createStatement();
+        String delete = "drop table if exists CITIES";
+        stmt.executeUpdate(delete);
+        String createString = 
+                ("create table CITIES " 
+                + "(CITYNAME varchar(20) primary key, " 
+                + "STATENAME varchar(20), " 
+                + "POPULATION int)");
+        
+        String [] insertStmts = new String[5];
+        insertStmts[0]="insert into CITIES values ('San Francisco','California',4000000)";
+        insertStmts[1]=("insert into CITIES values ('Omaha','Nebraska',2000000)");
+        insertStmts[2]=("insert into CITIES values ('New York','New York',4000000)");
+        insertStmts[3]=("insert into CITIES values ('Detroit','Michigan',2000000) ");
+        insertStmts[4]=("insert into CITIES values ('Denver','Colorado',3000000)");
+        
+        stmt.executeUpdate(createString);
+        
+        for(int i = 0; i<insertStmts.length; i++){
+            stmt.executeUpdate(insertStmts[i]);
+        }
+        rSet=stmt.executeQuery("select * from CITIES");
+        System.out.println("Cities");
+        while(rSet.next()){
+            String city = rSet.getString("CITYNAME");
+            String state = rSet.getString("STATENAME");
+            String pop = rSet.getString("POPULATION");
+            System.out.println("City Name = "+ city + " StateName = " + state + " Population= "+pop);
+        }
+        stmt.close();
+        con.close();
+    }
+    catch(SQLException e){
+        System.err.println("SQL exception "+ e.getMessage());
+    }
+    
+    
+    }
+}
