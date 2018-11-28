@@ -1,0 +1,60 @@
+
+package dbPeopleCollection;
+
+import java.sql.Statement;
+import java.util.ArrayList;
+import javax.servlet.http.HttpServletRequest;
+
+
+public class DB_PeopleCollection {
+    
+    public static String update(Statement stmt, HttpServletRequest request)
+    {
+        String errorMessage="";
+        String action = request.getParameter("action");
+        if (action != null ) {
+            System.out.println("Requesting information");
+            String name = request.getParameter("name");
+            String eyeColor = request.getParameter("eyeColor");
+            String hairColor = request.getParameter("hairColor");
+            String age = request.getParameter("age");
+            String weight = request.getParameter("weight");
+            String height = request.getParameter("height");
+            System.out.println(name);
+            
+            DB_People person = new DB_People(name, age, height, weight, hairColor, eyeColor
+           );
+
+            String strIndex;
+            int index;
+
+            switch (action) {
+                case "Clear List":
+                    errorMessage=DB_People.remove(-1, stmt);
+                    break;
+                case "add":
+                    errorMessage = person.insert(stmt);
+                    break;
+                case "remove":
+                    strIndex = request.getParameter("index");
+                    index = Integer.parseInt(strIndex);
+                    errorMessage = DB_People.remove(index, stmt);
+                    break;
+                case "update":
+                    strIndex = request.getParameter("index");
+                    System.out.println("index is" + strIndex);
+                    index = Integer.parseInt(strIndex);
+                    errorMessage = person.update(index, stmt);
+                    break;
+            }
+
+        }
+        
+        ArrayList<DB_People> personCollection = new ArrayList<>();
+        errorMessage += DB_People.getPeople(stmt, personCollection);
+        request.setAttribute("PersonCollection", personCollection);
+        
+        return errorMessage;
+    }
+
+}

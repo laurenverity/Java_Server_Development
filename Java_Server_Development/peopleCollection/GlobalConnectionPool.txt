@@ -1,0 +1,49 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package jdbc;
+
+import java.sql.SQLException;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+/**
+ *
+ * @author Win User
+ */
+public class GlobalConnectionPool implements ServletContextListener{
+    @Override
+    public void contextInitialized(ServletContextEvent sce){
+        ServletContext servletContext=sce.getServletContext();
+        ConnectionPool connectionPool = new ConnectionPool();
+        
+        String userId = servletContext.getInitParameter("db_username");
+        String password=servletContext.getInitParameter("db_password");
+        int initialConnections = 3;
+        int maxConnections = 20;
+        boolean waitIfBusy = true;
+        
+        try{
+            System.out.println("Here we are");
+            connectionPool.CreateConnectionPool(userId,password,initialConnections,maxConnections,waitIfBusy);
+            servletContext.setAttribute("connectionPool", connectionPool);
+            System.out.println("Global connection pool has set up the connection pool.");        
+        }
+        catch(SQLException e){
+            System.out.println("System caught " + e);
+        }
+        
+    }
+    
+    public void contextDestroyed(ServletContextEvent sce){
+        ServletContext servletContext = sce.getServletContext();
+        ConnectionPool connectionPool = (ConnectionPool) servletContext.getAttribute("connectionPool");
+        if(connectionPool!=null){
+            connectionPool.closeAllConnections();
+            System.out.println("Global connection pool closed the connection pool.");
+        }
+    }
+}

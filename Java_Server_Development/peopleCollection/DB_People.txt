@@ -1,0 +1,186 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package dbPeopleCollection;
+  
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
+   
+public class DB_People{
+    private String age;
+    private String weight;
+    private String height;
+    private String name;
+    private String eyeColor;
+    private String hairColor;
+    int index; 
+  
+    public DB_People(String name, String age, String height, 
+            String weight, String hairColor, String eyeColor,int index){
+       this.age=age;
+       this.height=height;
+       this.hairColor=hairColor;
+       this.eyeColor=eyeColor;
+       this.weight=weight;
+       this.height=height;
+       this.name=name;
+       this.index=index;
+    }
+    
+    public DB_People(String name, String age, String height, 
+            String weight, String hairColor, String eyeColor){
+       this(name, age, height, weight, hairColor,eyeColor, -1);
+    }
+    
+    public String getAge(){
+        return age;
+    }
+    
+    public String getWeight(){
+        return weight;
+    }
+    
+    public String getHeight(){
+        return height;
+    }
+    
+    public String getName(){
+        return name;
+    }
+    
+    public String getEyeColor(){
+        return eyeColor;
+    }
+    
+    public String getHairColor(){
+        return hairColor;
+    }
+    
+    public void setHairColor(String h){
+        hairColor=h;
+    }
+    
+    public void setEyeColor(String e){
+        eyeColor=e;
+    }
+    
+    public void setName(String n){
+        name=n;
+    }
+    
+    public void setWeight(String w){
+        weight=w;
+    }
+    
+    public void setHeight(String h){
+        height=h;
+    }
+    
+    public void setAge(String a){
+        age=a;
+    }
+     
+     public int getIndex()
+    {
+        return index;
+    }
+
+    public boolean equals(Object o){
+
+        if(o==null || getClass()!=o.getClass())
+            return false;
+        DB_People p = (DB_People) o;
+        if(age.equals(p.age) && name.equals(p.name)&&height.equals(p.height)
+                &&weight.equals(p.weight)&&eyeColor.equals(p.eyeColor)
+                &&hairColor.equals(p.hairColor))
+            return true;
+        else
+            return false;
+        
+    }
+    
+    public String update(int index, Statement statement) {
+        String sql = "update PeopleCollection set name=" + q_surround(name)
+                + ", age=" + q_surround(age) + ", height=" + q_surround(height)
+                + ", weight=" + q_surround(weight) + ", hairColor=" + q_surround(hairColor)+
+                ", eyeColor=" + q_surround(eyeColor) + " where id=" + index;
+        return executeUpdate(sql, statement);
+    }
+
+    public String insert(Statement statement) {
+
+        // First find out if the book is already in the collection:
+        String sql = "select name from PeopleCollection where name="+ q_surround(name)
+                + " AND age=" + q_surround(age) + " AND height=" + q_surround(height)
+                + " AND weight=" + q_surround(weight) + 
+                " AND hairColor=" + q_surround(hairColor) + " AND eyeColor=" + q_surround(eyeColor) ;
+        
+        try
+        {
+            ResultSet rs = statement.executeQuery(sql);
+            if (rs.next())
+                return "Person already exists";
+        }
+        catch (SQLException e)
+        {
+            return e.toString();
+        }
+        
+        sql = "insert into PeopleCollection values(" + q_surround(name) + ","
+                + q_surround(age) + "," + q_surround(height) + "," + q_surround(weight) + "," + q_surround(hairColor)
+                + "," + q_surround(eyeColor)+ ", null)";
+        return executeUpdate(sql, statement);
+    }
+
+    public static String remove(int index, Statement statement) {
+        String sql = "delete from PeopleCollection ";
+        if (index >= 0)
+            sql += " where id=" + index;
+        return executeUpdate(sql, statement);
+    }
+
+    private static String executeUpdate(String sql, Statement statement) {
+        String error = "";
+        try {
+            System.out.println("sql=" + sql);
+            statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            error = e.toString();
+        }
+        return error;
+    }
+
+    public static String getPeople(Statement statement, ArrayList<DB_People> people) {
+        String error = "";
+        try {
+            String sql = "select * from PeopleCollection";
+            System.out.println("sql="+sql);
+            ResultSet rs = statement.executeQuery(sql);
+            people.clear();
+            while (rs.next()) {
+                String n = rs.getString("name");
+                String a = rs.getString("age");
+                String h = rs.getString("hairColor");
+                String e = rs.getString("eyeColor");
+                String w = rs.getString("weight");
+                String height = rs.getString("height");
+                int ind = rs.getInt("id");
+                DB_People p = new DB_People(n, a, height, w, h,e, ind);
+                people.add(p);
+            }
+        } catch (SQLException ex) {
+            error = ex.toString();
+        }
+        return error;
+    }
+
+    // Surround with single quote
+    private String q_surround(String s) {
+        return "\'" + s + "\'";
+    }
+}
